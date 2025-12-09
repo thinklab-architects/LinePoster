@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活動海報產生器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --panel-bg: #ffffff;
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #f8fafc;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 40px;
+        }
+
+        #root {
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid white;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: #334155;
+            letter-spacing: 0.05em;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 95%;
+            display: flex;
+            flex-direction: row;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .editor-panel {
+            flex: 1;
+            background: var(--panel-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            min-width: 320px;
+        }
+
+        .preview-panel {
+            flex: 1;
+            position: sticky;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .canvas-container {
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 1 / 1;
+            background: #eee;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            line-height: 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .preview-hint {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            text-align: center;
+            word-break: break-all;
+            background: rgba(255,255,255,0.6);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--input-bg);
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            background: #fafafa;
+            color: var(--text-main);
+        }
+
+        input[type="file"]:hover {
+            border-color: var(--primary-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        button {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: white;
+            border: 2px solid var(--border-color);
+            color: var(--text-main);
+        }
+        .btn-outline:hover {
+            border-color: var(--text-main);
+            background-color: #f8fafc;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column; 
+                gap: 30px;
+            }
+
+            .editor-panel, .preview-panel {
+                width: 100%;
+                min-width: unset;
+            }
+            
+            .preview-panel {
+                position: static;
+                order: 2; /* 確保預覽在下 */
+            }
+            .editor-panel {
+                order: 1; /* 表單在上 */
+            }
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+</body>
+</html>
